@@ -50,7 +50,7 @@ class Window: public olc::PixelGameEngine
     float point_radius = 2.5f;
     float highlight_radius = 4.0f;
     vec2<float> previous_mouse_pos = {0,0};
-
+    float smoothdelta = 0.1f;
 
     Window()
     {
@@ -73,6 +73,8 @@ class Window: public olc::PixelGameEngine
         // FillRect(0,0,ScreenWidth(), ScreenHeight(), olc::Pixel(30,15,30, 40));//40,45,35
         // SetPixelMode(olc::Pixel::NORMAL);
         
+        smoothdelta = (smoothdelta+fElapsedTime*0.1f)/1.1f;
+
         Clear(olc::Pixel(33, 36, 30));
 
         if( !(currentmode == mode::handmode && GetMouse(0).bHeld))
@@ -118,7 +120,7 @@ class Window: public olc::PixelGameEngine
             }
         }
 
-        simulate(fElapsedTime, 4, 200.0f);
+        simulate(smoothdelta, 4, 200.0f);
         snapSticks();
         renderPoints();
         renderSticks();
@@ -160,8 +162,8 @@ class Window: public olc::PixelGameEngine
                 const vec2<float> stickdir = (points[s.start].pos - points[s.end].pos).normalised();
 
 
-                //keeps points at constant distance from eachother
-                //at least in theory, with less iterations it's bouncier
+                //keeps points at constant distance from eachother,
+                //at least in theory. with less iterations it's bouncier
                 //with more iterations it becomes rigid
                 if(!point_is_static[s.start])
                     points[scopy.start].pos = stickcentre + stickdir * s.target_length / 2.0f;
@@ -299,24 +301,24 @@ class Window: public olc::PixelGameEngine
             const vec2<float> vel = p.pos - p.prev;
             const float sw =(float)ScreenWidth(); 
             const float sh = (float) ScreenHeight();
-            if(p.pos.x > sw)
+            if(p.pos.x > sw - point_radius)
             {
-                p.pos.x = sw;
+                p.pos.x = sw - point_radius;
                 p.prev.x = p.pos.x + abs(vel.x);
             }
-            else if(p.pos.x < 0.0f)
+            else if(p.pos.x < point_radius)
             {
-                p.pos.x = 0.0f;
+                p.pos.x = point_radius;
                 p.prev.x = p.pos.x - abs(vel.x);
             }
-            if(p.pos.y > sh)
+            if(p.pos.y > sh - point_radius)
             {
-                p.pos.y = sh;
+                p.pos.y = sh - point_radius;
                 p.prev.y = p.pos.y + abs(vel.y);
             }
-            else if(p.pos.y < 0.0f)
+            else if(p.pos.y < point_radius)
             {
-                p.pos.y = 0.0f;
+                p.pos.y = point_radius;
                 p.prev.y = p.pos.y - abs(vel.y);
             }
         }
@@ -439,6 +441,9 @@ class Window: public olc::PixelGameEngine
                 {
                     continue;
                 }
+                //moves points a bit when cutting between them
+                points[sticks[i].start].pos+=mouse_delta/10.0f;
+                points[sticks[i].end].pos+=mouse_delta/10.0f;
                 removeStick(i);
                 --i;
             }

@@ -5,7 +5,7 @@
 int main()
 {
     Window window;
-    if(window.Construct(600, 400, 2, 2))
+    if(window.Construct(400, 300, 3, 3))
     {
         window.Start();
     }
