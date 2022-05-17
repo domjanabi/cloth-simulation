@@ -1,3 +1,4 @@
+#define OLC_PGE_APPLICATION
 #include "Window.h"
 
 Window::Window()
