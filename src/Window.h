@@ -1,4 +1,3 @@
-#define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
 #include "point.h"
 #include "vec2.h"
